@@ -8,7 +8,6 @@ An extensible, descriptive, modern computer graphics and rendering engine, writt
 
 <div align="center">
 
-[![GitHub](https://img.shields.io/github/license/crud89/litefx?style=flat-square)](https://github.com/crud89/LiteFX/blob/main/LICENSE) [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/crud89/litefx/weekly.yml?branch=main&style=flat-square)](https://github.com/crud89/LiteFX/actions/workflows/weekly.yml) [![Latest release](https://img.shields.io/github/release/crud89/litefx.svg?style=flat-square)](https://github.com/crud89/LiteFX/releases) [![Released at](https://img.shields.io/github/release-date/crud89/litefx.svg?style=flat-square)](https://github.com/crud89/LiteFX/tags) [![Issues](https://img.shields.io/github/issues/crud89/LiteFX?style=flat-square)](https://github.com/crud89/LiteFX/issues) [![Pull Requests](https://img.shields.io/github/issues-pr/crud89/LiteFX?style=flat-square)](https://github.com/crud89/LiteFX/pulls) [![Documentation](https://img.shields.io/badge/docs-gh--pages-70dcf4.svg?style=flat-square)](https://litefx.crudolph.io/docs/)
 
 </div>
 
@@ -92,19 +91,3 @@ Finally, the tests are using conformant software emulated rasterizers to keep th
 
 - [Windows Advanced Rasterization Platform (WARP)](https://learn.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp): Emulates D3D12 devices.
 - [Mesa 3D 24.1 / Lavapipe](https://github.com/pal1000/mesa-dist-win): Emulates Vulkan devices and needs to be installed manually (see [Tests](/src/tests/readme.md) for more information).
-
-## Contribute
-
-If you are having trouble using the engine, found a bug or have suggestions, just drop an [issue](https://github.com/crud89/LiteFX/issues). Keep in mind that this project is developed in my free time and I might not be able to provide any advanced support. If you want to, feel free to provide improvements by creating a pull request.
-
-## Projects using LiteFX
-
-<!-- Currently none, lol -->
-
-Want to add yours? Feel free to [contact](mailto:litefx@crudolph.io?subject=[GitHub]%20LiteFX%20Project%20List) me!
-
-## License
-
-LiteFX is licensed under the permissive [MIT license](./LICENSE). The documentation (i.e. the contents of the `docs` folder of this repository, especially the LiteFX logo, banner and icon) is licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/). Parts of this software are from third parties and are licensed under different terms. By using or redistributing this software, you agree to the terms of the third-party licenses mentioned in the [NOTICE](./NOTICE) file, depending on the parts you use or re-distribute. Please refer to [the above list](#dependencies) to see which license terms you have to agree to.
-
-If you want to use LiteFX in your projects, linking to [project website](https://litefx.crudolph.io/) and/or putting the logo in your project description is much appreciated.
