@@ -1,0 +1,46 @@
+{
+  "version": 4,
+  "include": [
+    "platforms.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "msvc",
+      "hidden": true,
+      "inherits": "windows",
+      "environment": {
+        "CXX": "cl"
+      }
+    },
+    {
+      "name": "clang",
+      "hidden": true,
+      "environment": {
+        "CXX": "clang++"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64"
+        }
+      }
+    },
+    {
+      "name": "clangcl",
+      "hidden": true,
+      "environment": {
+        "CC": "clang-cl",
+        "CXX": "clang-cl"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--config-file=${sourceDir}/.clang-tidy;--extra-arg=/EHsc"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64",
+          "enableClangTidyCodeAnalysis": true,
+          "clangTidyChecks": "clang-analyzer-*, cppcoreguidelines-*"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# Line ending configuration.
+*.sh text eof=lf
+* text eof=crlf
+
+# Map binary files
+*.png binary
+*.jpg binary
+*.psd binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ico binary
+
+# Legacy shader name mappings.
+*.vert linguist-language=HLSL
+*.frag linguist-language=HLSL

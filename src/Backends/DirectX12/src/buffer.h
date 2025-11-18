@@ -1,0 +1,185 @@
+#pragma once
+
+#include <litefx/rendering.hpp>
+#include <litefx/backends/dx12.hpp>
+#include "D3D12MemAlloc.h"
+
+#pragma warning(push)
+#pragma warning(disable:4250) // Base class members are inherited via dominance.
+
+namespace LiteFX::Rendering::Backends {
+	using namespace LiteFX::Rendering;
+
+	struct D3D12MADeleter {
+		void operator()(auto* ptr) noexcept {
+			ptr->Release();
+		}
+	};
+
+	typedef SharedPtr<D3D12MA::Allocator> AllocatorPtr;
+	typedef SharedPtr<D3D12MA::Allocation> AllocationPtr;
+
+	/// <summary>
+	/// Implements a DirectX 12 <see cref="IBuffer" />.
+	/// </summary>
+	class DirectX12Buffer : public virtual IDirectX12Buffer, public ComResource<ID3D12Resource>, public virtual StateResource {
+		LITEFX_IMPLEMENTATION(DirectX12BufferImpl);
+		friend struct SharedObject::Allocator<DirectX12Buffer>;
+		friend class DirectX12GraphicsFactory;
+
+	protected:
+		explicit DirectX12Buffer(ComPtr<ID3D12Resource>&& buffer, BufferType type, UInt32 elements, size_t elementSize, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, AllocatorPtr allocator = nullptr, AllocationPtr allocation = nullptr, const String& name = "");
+		
+		DirectX12Buffer(DirectX12Buffer&&) noexcept = delete;
+		DirectX12Buffer(const DirectX12Buffer&) = delete;
+		DirectX12Buffer& operator=(DirectX12Buffer&&) noexcept = delete;
+		DirectX12Buffer& operator=(const DirectX12Buffer&) = delete;
+
+	public:
+		~DirectX12Buffer() noexcept override;
+
+		// IBuffer interface.
+	public:
+		/// <inheritdoc />
+		BufferType type() const noexcept override;
+
+		// IDeviceMemory interface.
+	public:
+		/// <inheritdoc />
+		UInt32 elements() const noexcept override;
+
+		/// <inheritdoc />
+		size_t size() const noexcept override;
+
+		/// <inheritdoc />
+		size_t elementSize() const noexcept override;
+
+		/// <inheritdoc />
+		size_t elementAlignment() const noexcept override;
+
+		/// <inheritdoc />
+		size_t alignedElementSize() const noexcept override;
+
+		/// <inheritdoc />
+		ResourceUsage usage() const noexcept override;
+
+		/// <inheritdoc />
+		UInt64 virtualAddress() const noexcept override;
+
+		// IMappable interface.
+	public:
+		/// <inheritdoc />
+		void map(const void* const data, size_t size, UInt32 element = 0) override;
+
+		/// <inheritdoc />
+		void map(Span<const void* const> data, size_t elementSize, UInt32 firstElement = 0) override;
+
+		/// <inheritdoc />
+		void map(void* data, size_t size, UInt32 element = 0, bool write = true) override;
+
+		/// <inheritdoc />
+		void map(Span<void*> data, size_t elementSize, UInt32 firstElement = 0, bool write = true) override;
+
+		/// <inheritdoc />
+		void write(const void* const data, size_t size, size_t offset = 0) override;
+
+		/// <inheritdoc />
+		void read(void* data, size_t size, size_t offset = 0) override;
+
+		// DirectX 12 buffer.
+	protected:
+		AllocatorPtr allocator() const noexcept;
+		const D3D12MA::Allocation* allocationInfo() const noexcept;
+
+	private:
+		static inline auto create(ComPtr<ID3D12Resource>&& buffer, BufferType type, UInt32 elements, size_t elementSize, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, AllocatorPtr allocator = nullptr, AllocationPtr allocation = nullptr, const String& name = "") {
+			return SharedObject::create<DirectX12Buffer>(std::move(buffer), type, elements, elementSize, alignment, usage, resourceDesc, std::move(allocator), std::move(allocation), name);
+		}
+
+	public:
+		static SharedPtr<IDirectX12Buffer> allocate(const String& name, AllocatorPtr allocator, const ResourceAllocationInfo::BufferInfo& bufferInfo, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, const D3D12MA::ALLOCATION_DESC& allocationDesc);
+		static bool tryAllocate(SharedPtr<IDirectX12Buffer>& buffer, const String& name, AllocatorPtr allocator, const ResourceAllocationInfo::BufferInfo& bufferInfo, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, const D3D12MA::ALLOCATION_DESC& allocationDesc);
+
+		static bool move(SharedPtr<IDirectX12Buffer> image, D3D12MA::Allocation* to, const DirectX12CommandBuffer& commandBuffer);
+	};
+
+	/// <summary>
+	/// Implements a DirectX 12 <see cref="IVertexBuffer" />.
+	/// </summary>
+	class DirectX12VertexBuffer : public DirectX12Buffer, public virtual IDirectX12VertexBuffer {
+		LITEFX_IMPLEMENTATION(DirectX12VertexBufferImpl);
+		friend struct SharedObject::Allocator<DirectX12VertexBuffer>;
+		friend class DirectX12GraphicsFactory;
+
+	private:
+		explicit DirectX12VertexBuffer(ComPtr<ID3D12Resource>&& buffer, const DirectX12VertexBufferLayout& layout, UInt32 elements, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, AllocatorPtr allocator, AllocationPtr allocation, const String& name = "");
+
+		DirectX12VertexBuffer(DirectX12VertexBuffer&&) noexcept = delete;
+		DirectX12VertexBuffer(const DirectX12VertexBuffer&) = delete;
+		DirectX12VertexBuffer& operator=(DirectX12VertexBuffer&&) noexcept = delete;
+		DirectX12VertexBuffer& operator=(const DirectX12VertexBuffer&) = delete;
+
+	public:
+		~DirectX12VertexBuffer() noexcept override;
+
+		// VertexBuffer interface.
+	public:
+		/// <inheritdoc />
+		const DirectX12VertexBufferLayout& layout() const noexcept override;
+
+		// IDirectX12VertexBuffer interface.
+	public:
+		const D3D12_VERTEX_BUFFER_VIEW& view() const noexcept override;
+
+	private:
+		static inline auto create(ComPtr<ID3D12Resource>&& buffer, const DirectX12VertexBufferLayout& layout, UInt32 elements, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, AllocatorPtr allocator, AllocationPtr allocation, const String& name = "") {
+			return SharedObject::create<DirectX12VertexBuffer>(std::move(buffer), layout, elements, alignment, usage, resourceDesc, std::move(allocator), std::move(allocation), name);
+		}
+
+		// DirectX 12 Vertex Buffer.
+	public:
+		static SharedPtr<IDirectX12VertexBuffer> allocate(const String& name, AllocatorPtr allocator, const ResourceAllocationInfo::BufferInfo& bufferInfo, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, const D3D12MA::ALLOCATION_DESC& allocationDesc);
+		static bool tryAllocate(SharedPtr<IDirectX12VertexBuffer>& buffer, const String& name, AllocatorPtr allocator, const ResourceAllocationInfo::BufferInfo& bufferInfo, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, const D3D12MA::ALLOCATION_DESC& allocationDesc);
+	};
+
+	/// <summary>
+	/// Implements a DirectX 12 <see cref="IIndexBuffer" />.
+	/// </summary>
+	class DirectX12IndexBuffer : public DirectX12Buffer, public virtual IDirectX12IndexBuffer {
+		LITEFX_IMPLEMENTATION(DirectX12IndexBufferImpl);
+		friend struct SharedObject::Allocator<DirectX12IndexBuffer>;
+		friend class DirectX12GraphicsFactory;
+
+	private:
+		explicit DirectX12IndexBuffer(ComPtr<ID3D12Resource>&& buffer, const DirectX12IndexBufferLayout& layout, UInt32 elements, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, AllocatorPtr allocator, AllocationPtr allocation, const String& name = "");
+
+		DirectX12IndexBuffer(DirectX12IndexBuffer&&) noexcept = delete;
+		DirectX12IndexBuffer(const DirectX12IndexBuffer&) = delete;
+		DirectX12IndexBuffer& operator=(DirectX12IndexBuffer&&) noexcept = delete;
+		DirectX12IndexBuffer& operator=(const DirectX12IndexBuffer&) = delete;
+	
+	public:
+		~DirectX12IndexBuffer() noexcept override;
+
+		// IndexBuffer interface.
+	public:
+		/// <inheritdoc />
+		const DirectX12IndexBufferLayout& layout() const noexcept override;
+
+		// IDirectX12IndexBuffer interface.
+	public:
+		const D3D12_INDEX_BUFFER_VIEW& view() const noexcept override;
+
+	private:
+		static inline auto create(ComPtr<ID3D12Resource>&& buffer, const DirectX12IndexBufferLayout& layout, UInt32 elements, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, AllocatorPtr allocator, AllocationPtr allocation, const String& name = "") {
+			return SharedObject::create<DirectX12IndexBuffer>(std::move(buffer), layout, elements, alignment, usage, resourceDesc, std::move(allocator), std::move(allocation), name);
+		}
+
+		// DirectX 12 Index Buffer.
+	public:
+		static SharedPtr<IDirectX12IndexBuffer> allocate(const String& name, AllocatorPtr allocator, const ResourceAllocationInfo::BufferInfo& bufferInfo, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, const D3D12MA::ALLOCATION_DESC& allocationDesc);
+		static bool tryAllocate(SharedPtr<IDirectX12IndexBuffer>& buffer, const String& name, AllocatorPtr allocator, const ResourceAllocationInfo::BufferInfo& bufferInfo, size_t alignment, ResourceUsage usage, const D3D12_RESOURCE_DESC1& resourceDesc, const D3D12MA::ALLOCATION_DESC& allocationDesc);
+	};
+}
+
+#pragma warning(pop)

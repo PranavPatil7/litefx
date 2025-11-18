@@ -1,0 +1,12 @@
+#pragma once
+
+#include <litefx/version.h>
+#include <litefx/config.h>
+
+#if (defined _WIN32 || defined WINCE)
+#  define NOMINMAX
+#  include <Windows.h>
+#endif
+
+#include <litefx/containers.hpp>
+#include <litefx/traits.hpp>
